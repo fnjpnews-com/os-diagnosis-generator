@@ -1,6 +1,6 @@
 <?php
-// SQLを操作するcalss
-class DiagnosisSqlClass extends DiagnosisClass {
+// SQLを操作するclass
+class PreDiagnosisSqlClass extends DiagnosisClass {
 
 	public function __construct(){
 
@@ -13,7 +13,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	/*
 	*  一覧取得
 	*/
-	public function get_list_diagnosis($paged='1', $ct='20'){
+	public static function get_list_diagnosis($paged='1', $ct='20'){
 
 		$data = array();
 		//
@@ -56,6 +56,19 @@ class DiagnosisSqlClass extends DiagnosisClass {
 				}else{
 					$data[$key]['question'] = '';
 				}
+				// オプション取得
+				$option_sql = "SELECT * FROM `".OSDG_PLUGIN_FORM_OPTIONS."` WHERE `delete_flag`=%d AND `data_id`=%d ORDER by `data_id` ASC";
+				$option_params = array(0, $get->data_id);
+				$option_data = $wpdb->get_results( $wpdb->prepare($option_sql, $option_params) );
+				// データあれば
+				if(!empty($option_data)){
+					foreach($option_data as $op_i => $option){
+						// 整理
+						foreach($option as $k => $op){
+							$data[$key][$k] = $op;
+						}
+					}
+				}
 			}
 		}
 
@@ -66,7 +79,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  指定idデータの取得
 	*/
 	// データ取得
-	public function get_diagnosis($id='', $type=''){
+	public static function get_diagnosis($id='', $type=''){
 
 		$return_data = array();
 		$data = array();
@@ -102,10 +115,22 @@ class DiagnosisSqlClass extends DiagnosisClass {
 				}else{
 					$question_data = '';
 				}
-
+				// オプション取得
+				$option_sql = "SELECT * FROM `".OSDG_PLUGIN_FORM_OPTIONS."` WHERE `delete_flag`=%d AND `data_id`=%d ORDER by `data_id` ASC";
+				$option_params = array(0, $id);
+				$option_data = $wpdb->get_results( $wpdb->prepare($option_sql, $option_params) );
+				// データあれば
+				if(!empty($option_data)){
+					// 整理
+					foreach($option_data as $op_i => $option){
+						$op_key = (isset($option->key)) ? $option->key: 'key';
+						$op_val = (isset($option->data)) ? $option->data: 0;
+						$data[$op_key] = $op_val;
+					}
+				}
+				//
 				$return_data = $data;
 				$return_data['question'] = $question_data;
-
 			}
 
 		}
@@ -114,7 +139,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// 複数のデータ取得
-	public function get_diagnosis_plurality($ids='', $type=''){
+	public static function get_diagnosis_plurality($ids='', $type=''){
 
 		$return_data = array();
 		$id_ex = explode(",", $ids);
@@ -130,7 +155,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// 設問データの取得
-	public function get_question($id=''){
+	public static function get_question($id=''){
 
 		$question_data = array();
 		global $wpdb;
@@ -157,7 +182,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// 詳細データの処理
-	public function detail_arrangement_data($detail_data='', $data=''){
+	public static function detail_arrangement_data($detail_data='', $data=''){
 
 		if(!empty($detail_data)){
 
@@ -198,7 +223,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  診断の新規作成
 	*/
 	// 診断設定、テキスト作成
-	public function new_diagnosis($post=''){
+	public static function new_diagnosis($post=''){
 
 		$return_id = 0;
 		ksort($post); // キーによる昇順
@@ -212,6 +237,11 @@ class DiagnosisSqlClass extends DiagnosisClass {
 		$detail_value = '';
 		$detail_params = array();
 		$text_i = 1;
+		// 新機能オプション
+		$option_into = '';
+		$option_value = '';
+		$option_params = array();
+		$option_i = 1;
 		// 設問形式のとき
 		$condition_line = self::condition_line($post);
 		// 処理
@@ -245,42 +275,77 @@ class DiagnosisSqlClass extends DiagnosisClass {
 				}
 				// 空じゃなければ挿入する
 				if(!empty($post_data)){
+					$detail_value .= "( %s, %s, %s, %s, %s ),"; // [data_id]は後で数値idに変更
+					$detail_params[] = '[data_id]';
 					$d_key = self::data_key($text_i, $key);
+					$detail_params[] = $d_key;
+					$detail_params[] = $result_type;
 					// 設問条件
 					if(!empty($condition_line) && isset($condition_line[$d_key])){
 						$detail_params[] = $condition_line[$d_key];
 					}else{
 						$detail_params[] = '';
 					}
-					$detail_value .= "( '[data_id]', '".$d_key."', '".$result_type."', %s, %s ),"; // [data_id]は後で数値idに変更
+					//
 					$detail_params[] = $post_data;
 					//
 					if(!stristr($key, 'image')){
 						$text_i++;
 					}
 				}
+			} // 新機能オプション
+			elseif($key=='diagnosis_theme' || $key=='nonce_cache_sol'){
+				if($option_i==1){ // 初回のみ
+					$detail_into = "( `data_id`, `key`, `data` )";
+				}
+				$option_value .= "( %s, %s, %s ),"; // [data_id]は後で数値idに変更
+				$option_params[] = '[data_id]';
+				$option_params[] = $key;
+				$option_params[] = $p;
+				$option_i++;
 			}
 		}
 		// 作成日時のデータを付加
 		$into .= "`create_time` )";
 		$value .= "%s )";
-		$params[] = date("Y-m-d H:i:s", time());
+		//$params[] = date("Y-m-d H:i:s", time());
+		$params[] = date_i18n("Y-m-d H:i:s");
 		// os_diagnosis_generator_dataテーブルにインサート
 		$sql = "INSERT INTO `".OSDG_PLUGIN_TABLE_NAME."` ".$into." VALUES ".$value;
 		$wpdb->query( $wpdb->prepare($sql, $params) );
 		// インサートに成功したら、Text系をインサート
 		if($id = $wpdb->insert_id){
-			$detail_value = str_replace("[data_id]", $id, rtrim($detail_value, ","));
-			$detail_sql = "INSERT INTO `".OSDG_PLUGIN_DETAIL_TABLE_NAME."` ".$detail_into." VALUES ".$detail_value;
-			$wpdb->query( $wpdb->prepare($detail_sql, $detail_params) );
+			if(!empty($detail_value)){
+				// 変換
+				foreach($detail_params as $i => $d){
+					if($d==='[data_id]'){
+						$detail_params[$i] = $id;
+					}
+				}
+				//
+				$detail_sql = "INSERT INTO `".OSDG_PLUGIN_DETAIL_TABLE_NAME."` ".$detail_into." VALUES ".rtrim($detail_value, ",");
+				$wpdb->query( $wpdb->prepare($detail_sql, $detail_params) );
+			}
 			$return_id = $id;
+			// 新機能オプションをインサート
+			if(!empty($option_value)){
+				// 変換
+				foreach($option_params as $i => $d){
+					if($d==='[data_id]'){
+						$option_params[$i] = $id;
+					}
+				}
+				//
+				$option_sql = "INSERT INTO `".OSDG_PLUGIN_FORM_OPTIONS."` ".$option_into." VALUES ".rtrim($option_value, ",");
+				$wpdb->query( $wpdb->prepare($option_sql, $option_params) );
+			}
 		}
 
 		return $return_id;
 
 	}
 	// 設問作成
-	public function new_diagnosis_question($post='', $id='0'){
+	public static function new_diagnosis_question($post='', $id='0'){
 
 		global $wpdb;
 		$into = "( `data_id`, ";
@@ -310,7 +375,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	/*
 	*  診断の更新
 	*/
-	public function write_diagnosis($post=''){
+	public static function write_diagnosis($post=''){
 
 		ksort($post);
 		$set_data = '';
@@ -333,7 +398,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 				$p = self::post_premise_change($post, $p, $key);
 				$params[] = trim($p);
 			}
-			elseif($key=='post_authority' || $key=='result_page' || $key=='after_header_flag' || $key=='after_footer_flag' || $key=='form_title_flag'){
+			elseif($key=='post_authority' || $key=='result_page' || $key=='diagnosis_type' || $key=='diagnosis_count' || $key=='after_header_flag' || $key=='after_footer_flag' || $key=='form_title_flag'){
 				$set_data .= "`".self::sql_escape($key)."`= %d ,";
 				$params[] = trim($p);
 			}
@@ -374,12 +439,27 @@ class DiagnosisSqlClass extends DiagnosisClass {
 						}
 					}
 				}
+			} // 新機能オプション
+			elseif($key=='diagnosis_theme' || $key=='nonce_cache_sol'){
+				$sql = "SELECT * FROM `".OSDG_PLUGIN_FORM_OPTIONS."` WHERE `delete_flag`=%d AND `data_id`= %d AND `key`=%s";
+				$get_params = array(0, $post['data_id'], $key);
+				$get_data = $wpdb->get_results( $wpdb->prepare($sql, $get_params) );
+				// データがあればUPDATE
+				if(!empty($get_data)){
+					$option_id = (isset($get_data[0]) && isset($get_data[0]->option_id)) ? $get_data[0]->option_id: 0;
+					$op_sql = "UPDATE `".OSDG_PLUGIN_FORM_OPTIONS."` SET `data`=%s WHERE `option_id`= %d AND `delete_flag`=%d";
+					$wpdb->query( $wpdb->prepare($op_sql, array($p, $option_id, 0)) );
+				}else{ // なければ新規作成
+					$op_sql = "INSERT INTO `".OSDG_PLUGIN_FORM_OPTIONS."` (`data_id`, `key`, `data`) VALUES (%d, %s, %s)";
+					$wpdb->query( $wpdb->prepare($op_sql, array($post['data_id'], $key, $p)) );
+				}
 			}
 		}
 
 		global $wpdb;
 		// アップデート
-		$sql = "UPDATE `".OSDG_PLUGIN_TABLE_NAME."` SET ".rtrim($set_data, ", ")." WHERE `data_id`= %d AND `delete_flag`='0'";
+		$sql = "UPDATE `".OSDG_PLUGIN_TABLE_NAME."` SET ".$set_data."`update_time`= %s WHERE `data_id`= %d AND `delete_flag`='0'";
+		$params[] = date_i18n("Y-m-d H:i:s");
 		$params[] = $post['data_id'];
 		$result = $wpdb->query( $wpdb->prepare($sql, $params) );
 		//
@@ -403,7 +483,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// Text系が存在するかチェックし、なければ新規挿入にする
-	public function diagnosis_check_wr($post, $condition_line){
+	public static function diagnosis_check_wr($post, $condition_line){
 
 		$return_array = array(
 			'text1'=>0, 'text2'=>0, 'text3'=>0, 'text4'=>0, 'text5'=>0, 'text6'=>0, 'text7'=>0, 'text8'=>0, 'text9'=>0, 'text10'=>0, 'image1'=>0,
@@ -480,29 +560,45 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// 設問の更新
-	public function write_diagnosis_question($post='', $id='0'){
+	public static function write_diagnosis_question($post='', $id='0'){
 
 		global $wpdb;
+		// 設問が存在するかどうかチェック
+		$sql = "SELECT * FROM `".OSDG_PLUGIN_QUESTION_TABLE_NAME."` WHERE `delete_flag`='0' AND `data_id`= %d";
+		$get_data = $wpdb->get_results( $wpdb->prepare($sql, array(0, $id)) );
+		// 存在しなければ、あらかじめインサートする
+		if(empty($get_data)){
+			$insert_array = array();
+			// 50件文を作成
+			for($i=1; $i<51; $i++){
+				$insert_array[] = $id;
+				$insert_array[] = $i;
+				$insert_value .= "( %d, %d ) ,";
+			}
+			//
+			$insert_sql = "INSERT INTO `".OSDG_PLUGIN_QUESTION_TABLE_NAME."` (`data_id`, `sort_id`) VALUES ".rtrim($insert_value, " ,");
+			$wpdb->query( $wpdb->prepare($insert_sql, $insert_array) );
+		}
 		// 処理
 		foreach($post as $t => $pos){
 			$set_data = '';
 			$params = array();
 			//
 			foreach($pos as $key => $p){
-				$set_data = "`question_".self::sql_escape($key)."`= %s , ";
+				$set_data .= "`question_".self::sql_escape($key)."`= %s , ";
 				$params[] = $p;
 			}
 			//
 			$sql = "UPDATE `".OSDG_PLUGIN_QUESTION_TABLE_NAME."` SET ".rtrim($set_data, ", ")." WHERE `data_id`= %d AND `delete_flag`='0' AND `sort_id`= %d";
 			$params[] = $id;
 			$params[] = $t;
-			$wpdb->query( $wpdb->prepare($sql, $params) );
+			$result = $wpdb->query( $wpdb->prepare($sql, $params) );
 			unset($params);
 		}
 
 	}
 	// 設問形式の処理
-	private function condition_line($post=''){
+	public static function condition_line($post=''){
 
 		// 設問形式のとき
 		if(!empty($post['diagnosis_type']) && $post['diagnosis_type']==1){
@@ -528,7 +624,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// 条件によって$pを変化させる
-	private function post_premise_change($post='', $p='', $key=''){
+	public static function post_premise_change($post='', $p='', $key=''){
 
 		// 条件によって値を0にする
 		if($post['display_flag']==0){
@@ -552,7 +648,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	//
-	private function data_key($t, $key){
+	public static function data_key($t, $key){
 
 		$return_key = $t;
 
@@ -567,7 +663,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	/*
 	/*  指定したものを削除（削除フラグをたてる）
 	*/
-	public function delete_data($tbl, $key, $id){
+	public static function delete_data($tbl, $key, $id){
 
 		global $wpdb;
 		$sql = "UPDATE `".self::sql_escape($tbl)."` SET `delete_flag`='1' WHERE `".self::sql_escape($key)."`= %d ";
@@ -579,7 +675,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  基本処理
 	*/
 	// 条件にあてはまるデータの総数
-	public function sql_count($tbl, $where=''){
+	public static function sql_count($tbl, $where=''){
 
 		global $wpdb;
 		$table = self::is_array_return($tbl);
@@ -593,14 +689,14 @@ class DiagnosisSqlClass extends DiagnosisClass {
 
 	}
 	// テーブルの存在チェック
-	public function show_table($tbl){
+	public static function show_table($tbl){
 
 		global $wpdb;
 		return $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tbl));
 
 	}
 	// sqlを操作するファイルを読み込み、sqlを実行
-	public function sql_performs($sql=''){
+	public static function sql_performs($sql=''){
 
 		global $osdg_sqlfile_check;
 		// 既に読み込まれていないければファイル読み込み
@@ -616,16 +712,17 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  テーブル処理
 	*/
 	// プラグイン用のテーブルを新規作成
-	public function newTable(){
+	public static function newTable(){
 
 		// テーブルを作成
 		self::newDataTable();
 		self::newDetailDataTable();
 		self::newQuestionDataTable();
+		self::newFormOptionsTable();
 
 	}
 	// プラグイン用のテーブルを削除
-	public function deleteTable(){
+	public static function deleteTable(){
 
 		global $wpdb;
 		$wpdb->query("DELETE FROM ".OSDG_PLUGIN_TABLE_NAME.";");
@@ -646,7 +743,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  form_after_header 診断結果のヘッダー（after_header_flag=1の時）、 form_after_footer 診断結果のフッター（同左）、
 	*  post_authority 診断を利用できるユーザ、 delete_flag 削除フラグ、 create_time 作成日時、 update_time 更新日時、
 	*/
-	public function newDataTable(){
+	public static function newDataTable(){
 
 		$charset = defined("DB_CHARSET") ? DB_CHARSET : "utf8";
 		$sql = "CREATE TABLE " .OSDG_PLUGIN_TABLE_NAME. " (\n".
@@ -686,7 +783,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  result_type 結果タイプ 0=テキスト 1=画像、 result_text 結果表示に使用するテキスト、
 	*  condition 表示条件、 delete_flag 削除フラグ、
 	*/
-	public function newDetailDataTable(){
+	public static function newDetailDataTable(){
 
 		$charset = defined("DB_CHARSET") ? DB_CHARSET : "utf8";
 		$sql = "CREATE TABLE " .OSDG_PLUGIN_DETAIL_TABLE_NAME. " (\n".
@@ -709,7 +806,7 @@ class DiagnosisSqlClass extends DiagnosisClass {
 	*  question_text 設問文、 question_choice 設問の選択肢、 question_point 設問の点数、
 	*  delete_flag 削除フラグ、
 	*/
-	public function newQuestionDataTable(){
+	public static function newQuestionDataTable(){
 
 		$charset = defined("DB_CHARSET") ? DB_CHARSET : "utf8";
 		$sql = "CREATE TABLE " .OSDG_PLUGIN_QUESTION_TABLE_NAME. " (\n".
@@ -722,6 +819,25 @@ class DiagnosisSqlClass extends DiagnosisClass {
 				"`delete_flag` int(1) NOT NULL DEFAULT '0',\n".
 				"PRIMARY KEY (`question_id`)\n".
 			") ENGINE = MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=1 \n";
+		// SQL実行
+		self::sql_performs($sql);
+
+	}
+	/*
+	*  v1.2.33からの新機能用テーブル
+	*/
+	// 診断フォームのオプション
+	public static function newFormOptionsTable(){
+
+		$charset = defined("DB_CHARSET") ? DB_CHARSET : "utf8";
+		$sql = "CREATE TABLE " .OSDG_PLUGIN_FORM_OPTIONS. " (\n".
+				"`option_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,\n".
+				"`data_id` bigint(20) NOT NULL DEFAULT '0',\n".
+				"`key` varchar(255) NOT NULL,\n".
+				"`data` text NOT NULL,\n".
+				"`delete_flag` int(1) NOT NULL DEFAULT '0',\n".
+				"PRIMARY KEY (`option_id`)\n".
+		") ENGINE = MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=1 \n";
 		// SQL実行
 		self::sql_performs($sql);
 

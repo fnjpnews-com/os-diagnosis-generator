@@ -1,5 +1,5 @@
 <?php
-class DiagnosisClass {
+class PreDiagnosisClass {
 
 	public function __construct(){
 
@@ -13,7 +13,7 @@ class DiagnosisClass {
 	/*
 	*  オプション取得
 	*/
-	public function plugin_get_option(){
+	public static function plugin_get_option(){
 
 		$GLOBALS['osdg_option_data'] = get_option(OSDG_PLUGIN_DATA_NAME);
 
@@ -21,24 +21,25 @@ class DiagnosisClass {
 	/*
 	*  ユーザデータ、権限の取得
 	*/
-	public function action_level(){
+	public static function action_level(){
 
 		// ログインしてるとき、ユーザデータを取得し、グローバル変数へ
 		if(is_user_logged_in()){
 
-			global $current_user;
-			get_currentuserinfo();
+			//global $current_user;
+			//get_currentuserinfo();
+			$userData = wp_get_current_user();
 			$arr = array();
-
-			foreach($current_user->data as $key => $user){
+			//foreach($current_user->data as $key => $user){
+			foreach($userData->data as $key => $user){
 
 				if($key!='user_pass' && $key!='user_activation_key'){
 					$arr[$key] = $user;
 				}
 
 			}
-
-			$arr['level'] = $current_user->roles[0];
+			//$arr['level'] = $current_user->roles[0];
+			$arr['level'] = (isset($userData->roles) && isset($userData->roles[0])) ? $userData->roles[0]: 'guest';
 			$GLOBALS['osdg_user_data'] = $arr;
 
 		}else{
@@ -51,17 +52,18 @@ class DiagnosisClass {
 	/*
 	*  独自リダイレクト（先にヘッダが送信されているとリダイレクトできないため）
 	*/
-	public function os_redirect($url=''){
+	public static function os_redirect($url=''){
 
 		if(self::header_check()==TRUE){
 			print '<meta http-equiv="refresh" content="0;URL='.$url.'" />';
 		}else{
 			wp_safe_redirect($url);
 		}
+		exit;
 
 	}
 	// ヘッダーが送信されているかチェック
-	public function header_check(){
+	public static function header_check(){
 
 		if(headers_sent($filename, $linenum)){
 			//print_r(headers_list());
@@ -73,7 +75,7 @@ class DiagnosisClass {
 
 	}
 	// URLにパラメータ付加
-	public function url_plus($params='', $url=''){
+	public static function url_plus($params='', $url=''){
 
 		if(empty($url)){
 			$now_url = get_permalink();
@@ -89,7 +91,7 @@ class DiagnosisClass {
 		}
 
 	}
-	private function url_plus_params($params=''){
+	public static function url_plus_params($params=''){
 
 		$return_data = '';
 
@@ -110,7 +112,7 @@ class DiagnosisClass {
 	*  一時データ処理
 	*/
 	// 一時データ保存
-	public function action_cache_write($data='', $key=''){
+	public static function action_cache_write($data='', $key=''){
 
 		// キーがあれば
 		if(!empty($key)){
@@ -128,7 +130,7 @@ class DiagnosisClass {
 
 	}
 	// 一時データ読み込み
-	public function action_cache_read($key='', $str=''){
+	public static function action_cache_read($key='', $str=''){
 
 		if(!empty($key)){
 			if(!empty($str)){
@@ -142,7 +144,7 @@ class DiagnosisClass {
 
 	}
 	// 一時データ削除
-	public function action_cache_delete($key='', $str=''){
+	public static function action_cache_delete($key='', $str=''){
 
 		if(!empty($key)){
 			if(!empty($str)){
@@ -165,7 +167,7 @@ class DiagnosisClass {
 	*  エスケープ
 	*/
 	// SQLエスケープ
-	public function sql_escape($str=''){
+	public static function sql_escape($str=''){
 
 		$return_data = '';
 
@@ -177,7 +179,7 @@ class DiagnosisClass {
 
 	}
 	// htmlエスケープ
-	public function h($str=''){
+	public static function h($str=''){
 
 		$return_data = '';
 
@@ -195,7 +197,7 @@ class DiagnosisClass {
 
 	}
 	// htmlエスケープのデコ－ド
-	public function h_dec($str=''){
+	public static function h_dec($str=''){
 
 		$return_data = '';
 
@@ -212,7 +214,7 @@ class DiagnosisClass {
 
 	}
 	// 上記で使用
-	private function h_entity_decode($str){
+	public static function h_entity_decode($str){
 
 		$str = html_entity_decode($str, ENT_QUOTES, 'UTF-8');
 		$str = self::h_entity_decode_change($str);
@@ -220,7 +222,7 @@ class DiagnosisClass {
 
 	}
 	// 上記で使用
-	private function h_entity_decode_change($str){
+	public static function h_entity_decode_change($str){
 
 		$check_arr = array('\"', "\&quot;", "\'", "\&#039;");
 		$change_arr = array('"', '"', "'", "'");
@@ -229,7 +231,7 @@ class DiagnosisClass {
 
 	}
 	// POSTをエスケープして返す
-	public function post_escape(){
+	public static function post_escape(){
 
 		$arr = array();
 
@@ -246,7 +248,7 @@ class DiagnosisClass {
 		return $arr;
 
 	}
-	private function post_escape_arr($arr){
+	public static function post_escape_arr($arr){
 
 		foreach($arr as $key => $p){
 			if(is_array($p)){
@@ -260,7 +262,7 @@ class DiagnosisClass {
 
 	}
 	// GETをエスケープして返す
-	public function get_escape(){
+	public static function get_escape(){
 
 		$arr = array();
 
@@ -274,7 +276,7 @@ class DiagnosisClass {
 
 	}
 	// $_GETをurl形式にする
-	public function get_param($type=''){
+	public static function get_param($type=''){
 
 		$i = 0;
 		$_return = '';
@@ -296,7 +298,7 @@ class DiagnosisClass {
 
 	}
 	// データをarrayで整理
-	public function arrayData($data=''){
+	public static function arrayData($data=''){
 
 		$arr = array();
 
@@ -314,7 +316,7 @@ class DiagnosisClass {
 
 	}
 	// 配列なら処理（$cols,$tblで使用）
-	public function is_array_return($str='', $comma=''){
+	public static function is_array_return($str='', $comma=''){
 
 		$return_data = '';
 
@@ -353,7 +355,7 @@ class DiagnosisClass {
 
 	}
 	// 指定したkeyのPOSTをecho
-	public function post_set($key='', $type=''){
+	public static function post_set($key='', $type=''){
 
 		if(stristr($key, '.')){ // キーが配列なら（.）で判断
 			// POSTしてるなら処理
@@ -415,7 +417,7 @@ class DiagnosisClass {
 
 	}
 	// 指定したkeyのDataをecho
-	public function data_set($data='', $key='', $type=''){
+	public static function data_set($data='', $key='', $type=''){
 
 		if(stristr($key, '.')){ // キーが配列なら（.）で判断
 			$post_arr = $data;
@@ -474,7 +476,7 @@ class DiagnosisClass {
 	/*
 	*  ヘッダの処理
 	*/
-	public function action_head(){
+	public static function action_head(){
 
 		global $osdg_option_data;
 		//
@@ -489,7 +491,7 @@ class DiagnosisClass {
 
 	}
 	// ライセンス
-	public function osdgLicense($type=''){
+	public static function osdgLicense($type=''){
 
 		global $osdg_option_data;
 		$data = DiagnosisResultClass::encodeData();
@@ -510,6 +512,50 @@ class DiagnosisClass {
 			}else{
 				print urldecode($data);
 			}
+		}
+
+	}
+	/*
+	*  フォルダ、ファイル一覧を取得
+	*/
+	// フォルダ一覧を取得
+	public static function scandir($dir='test'){
+
+		$return_array = array();
+		// PHP5以上なら
+		if(self::phpversion_check(5)){
+			$files = scandir($dir, 1);
+		}else{ // PHP5以下なら
+			$files = array();
+			$dh = opendir($dir);
+			//
+			while(false!==($filename = readdir($dh))){
+				$files[] = $filename;
+			}
+			rsort($files);
+		}
+		//
+		if(is_array($files)){
+			foreach($files as $f){
+				if($f!='..' && $f!='.'){
+					$return_array[] = $f;
+				}
+			}
+		}else{
+			$return_array = $files;
+		}
+
+		return $return_array;
+
+	}
+	// PHPバージョン確認
+	public static function phpversion_check($version=5){
+
+		// 指定バージョン以上なら
+		if(phpversion()>=$version){
+			return TRUE;
+		}else{
+			return FALSE;
 		}
 
 	}

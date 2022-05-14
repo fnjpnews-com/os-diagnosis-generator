@@ -1,8 +1,8 @@
 <?php
-// タイムゾーンのcalss
+// タイムゾーンのclass
 class TimezoneClass {
 
-	public function zonelist(){
+	public static function zonelist(){
 
 		$list = array(
 			'アジア'=>array(

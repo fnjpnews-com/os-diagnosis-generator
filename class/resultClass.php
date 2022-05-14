@@ -1,7 +1,7 @@
 <?php
 if(class_exists('DiagnosisClass')){
-// 診断処理など操作するcalss
-class DiagnosisResultClass extends DiagnosisClass {
+// 診断処理など操作するclass
+class PreDiagnosisResultClass extends DiagnosisClass {
 
 	public function __construct(){
 
@@ -11,10 +11,11 @@ class DiagnosisResultClass extends DiagnosisClass {
 	/*
 	*  結果表示データ処理
 	*/
-	public function result_data_arrangement($get='', $data=''){
+	public static function result_data_arrangement($get='', $data=''){
 
 		$result_text = $data['result_text'];
 		$name = self::h(urldecode($get['osdgn']));
+		$point = self::h(urldecode($get['osdgpp']));
 		$list = explode(",", self::h($get['osdgl']));
 		$img_list = explode(",", self::h($get['osdgimg']));
 		// それぞれ置き換え処理
@@ -97,6 +98,59 @@ class DiagnosisResultClass extends DiagnosisClass {
 			}
 			unset($tag_match);
 		}
+		// ハイパーリンク
+		// 開始タグ
+		$regex_url = self::regex_url();
+		//
+		if(preg_match_all('/\[link:('.$regex_url.')\]/i', $result_text, $tag_match)){
+			foreach($tag_match[0] as $key => $val){
+				if(!empty($tag_match[1]) && !empty($tag_match[1][$key])){
+					$url = $tag_match[1][$key];
+					$result_text = str_replace($val, '<a href="'.$url.'">', $result_text);
+				}
+			}
+			unset($tag_match);
+		}
+		// 閉じタグ
+		if(preg_match_all('/\[\/link\]/i', $result_text, $tag_match)){
+			foreach($tag_match[0] as $key => $val){
+				$result_text = str_replace($val, '</a>', $result_text);
+			}
+			unset($tag_match);
+		}
+		// 点数タグ
+		if(preg_match_all('/\[point\]/i', $result_text, $tag_match)){
+			foreach($tag_match[0] as $key => $val){
+				$result_text = str_replace($val, $point, $result_text);
+			}
+			unset($tag_match);
+		}
+		
+		
+		
+		
+		if(preg_match_all('/\[Twitter\]/i', $result_text, $tag_match)){
+			foreach($tag_match[0] as $key => $val){
+				$result_text = str_replace($val, '<span id="twitter-text" style="display: none;">', $result_text);
+			}
+			unset($tag_match);
+		}
+		// 閉じタグ
+		if(preg_match_all('/\[\/Twitter\]/i', $result_text, $tag_match)){
+			foreach($tag_match[0] as $key => $val){
+				$result_text = str_replace($val, '</span>', $result_text);
+			}
+			unset($tag_match);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// HTML用のタグを変換 ======================================= end
 		// 画像
 		if(!empty($data['display_flag']) && !empty($data['result_type_flag'])){
@@ -131,7 +185,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 	*  システム側で処理する診断
 	*/
 	// システムで自動で判断
-	public function result_system($result_text='', $result_image='', $arr=array('hash'=>'', 'len'=>'')){
+	public static function result_system($result_text='', $result_image='', $arr=array('hash'=>'', 'len'=>'')){
 
 		$split = self::split_array($arr['hash']);
 		$len = $arr['len'];
@@ -209,7 +263,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 
 	}
 	// 文字が何回でるか
-	public function word_many_rank($split_word=''){
+	public static function word_many_rank($split_word=''){
 
 		$arr = array();
 		$return_data = array();
@@ -234,7 +288,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 
 	}
 	// 指定したカウント数まで1から順番に数字をいれていく
-	public function eisu_array($count='0'){
+	public static function eisu_array($count='0'){
 
 		$return_data = array();
 		$i = 1;
@@ -258,7 +312,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 	/*
 	*  設問で診断を処理する
 	*/
-	public function result_qsystem($post, $data){
+	public static function result_qsystem($post, $data){
 
 		$result_data = '';
 		$img_result_data = '';
@@ -273,9 +327,12 @@ class DiagnosisResultClass extends DiagnosisClass {
 				if(isset($point[$key]) && isset($point[$key]['point'])){
 					$point_data = $point[$key]['point'];
 					$point_line = explode("\n", trim($point_data));
+					$pl = $q - 1;
 					//
-					if(isset($point_line[$q])){
-						$points = $point_line[$q];
+					//if(isset($point_line[$q])){
+						//$points = $point_line[$q];
+					if(isset($point_line[$pl])){
+						$points = $point_line[$pl];
 					}else{
 						$points = 0;
 					}
@@ -325,7 +382,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 
 		}
 
-		return array('line'=>$result_data, 'img'=>$img_result_data);
+		return array('line'=>$result_data, 'img'=>$img_result_data, 'point'=>$total);
 
 	}
 	// 診断処理 //////////////////////////// <=
@@ -333,7 +390,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 	*  診断のための整理
 	*/
 	// Textデータの整理
-	public function result_text_arr($data='', $type=''){
+	public static function result_text_arr($data='', $type=''){
 
 		$return_data = array();
 		$text_data = array();
@@ -361,7 +418,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 	*  文字の処理
 	*/
 	// 1文字ずつ配列にする
-	public function split_array($word=''){
+	public static function split_array($word=''){
 
 		if(!empty($word)){
 			$arr = array();
@@ -377,7 +434,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 
 	}
 	// 名前をハッシュ化し、ハッシュ化したものと長さ
-	public function hash_len($name=''){
+	public static function hash_len($name=''){
 
 		$hash = sha1($name);
 		$len = strlen($hash);
@@ -388,7 +445,7 @@ class DiagnosisResultClass extends DiagnosisClass {
 	/*
 	*  ライセンスで処理
 	*/
-	public function licenseCheck($license=''){
+	public static function licenseCheck($license=''){
 
 		$return_data = "free";
 		// チェック
@@ -413,10 +470,18 @@ class DiagnosisResultClass extends DiagnosisClass {
 
 	}
 	//
-	public function encodeData(){
+	public static function encodeData(){
 
-		$data = '%0A%09%09%3Cdiv+class%3D%22plugin-copyright%22%3E%0A%09%09%09%3Ca+href%3D%22http%3A%2F%2Folivesystem.jp%2Flp%2Fplugin-dg%22+target%3D%22_blank%22+rel%3D%22nofollow%22%3E%E8%A8%BA%E6%96%AD%E3%82%B8%E3%82%A7%E3%83%8D%E3%83%AC%E3%83%BC%E3%82%BF%E4%BD%9C%E6%88%90%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%3C%2Fa%3E%0A%09%09%3C%2Fdiv%3E%0A%09%09';
+		$data = '%0A%09%09%3Cdiv+class%3D%22plugin-copyright%22%3E%0A%09%09%09%3Ca+href%3D%22http%3A%2F%2Flp.olivesystem.jp%2Fplugin-dg%22+target%3D%22_blank%22+rel%3D%22nofollow%22%3E%E8%A8%BA%E6%96%AD%E3%82%B8%E3%82%A7%E3%83%8D%E3%83%AC%E3%83%BC%E3%82%BF%E4%BD%9C%E6%88%90%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%3C%2Fa%3E%0A%09%09%3C%2Fdiv%3E%0A%09%09';
 		return $data;
+
+	}
+	//
+	public static function regex_url(){
+
+		$retrun = 'https?+:(?:\/\/(?:(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=])*+@)?+(?:\[(?:(?:[0-9a-f]{1,4}:){6}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|::(?:[0-9a-f]{1,4}:){5}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:[0-9a-f]{1,4})?+::(?:[0-9a-f]{1,4}:){4}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:(?:[0-9a-f]{1,4}:)?+[0-9a-f]{1,4})?+::(?:[0-9a-f]{1,4}:){3}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?+::(?:[0-9a-f]{1,4}:){2}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?+::[0-9a-f]{1,4}:(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?+::(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\\d|1\d{2}|2[0-4]\d|25[0-5]))|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?+::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?+::|v[0-9a-f]++\.[!$&-.0-;=_a-z~]++)\]|(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])|(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,;=])*+)(?::\d*+)?+(?:\/(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=@])*+)*+|\/(?:(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=@])++(?:\/(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=@])*+)*+)?+|(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=@])++(?:\/(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,:;=@])*+)*+)?+(?:\?+(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,\/:;=?+@])*+)?+(?:#(?:[-.0-9_a-z~]|%[0-9a-f][0-9a-f]|[!$&-,\/:;=?+@])*+)?+';
+
+		return $retrun;
 
 	}
 

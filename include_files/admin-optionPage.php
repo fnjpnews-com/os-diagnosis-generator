@@ -20,18 +20,21 @@ if(class_exists('DiagnosisAdmin')){
 	}else{
 		$license = "free";
 	}
+	//
+	$not404 = (isset($osdg_option_data['not404'])) ? $osdg_option_data['not404']: 0;
 ?>
 
 <script>
 function click_views(ids){
-	j('#'+ids).css("display", "block");
+	jQuery('#'+ids).css("display", "block");
 }
 function click_views_none(ids){
-	j('#'+ids).css("display", "none");
+	jQuery('#'+ids).css("display", "none");
 }
 </script>
 
 	<div id="diagnosis-plugin">
+	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>オプション</h2>
 			<div class="diagnosis-contents">
@@ -83,8 +86,16 @@ function click_views_none(ids){
 								<div style="font-size:11px;">※ライセンスを取得した方のみ、ご記入ください。デフォルトは「free」です。</div>
 							</td>
 						</tr>
+						<tr>
+							<th>404が発生</th>
+							<td>
+								診断時に404が発生&nbsp;：&nbsp;<input type="radio" name="not404" id="off404" value="0" <?php if(empty($not404)){ echo 'checked'; } ?> /><label for="off404">しない</label>&nbsp;&nbsp;<input type="radio" name="not404" id="on404" value="1" <?php if(!empty($not404)){ echo 'checked'; } ?> /><label for="on404">する</label>
+								<div style="font-size:11px;">※診断結果が404エラーになる場合のみ、「する」を選択してください。</div>
+							</td>
+						</tr>
 					</table>
 					<input type="hidden" name="option" value="1" />
+					<?php wp_nonce_field($my_id.'_option', '_wpnonce', false); echo "\n"; ?>
 					<div class="submit">
 						<input type="submit" name="submit" value="更新する" />
 					</div>
@@ -96,6 +107,7 @@ function click_views_none(ids){
 					<p>よろしいですか？</p>
 					<form action="admin.php?page=diagnosis-generator-options.php" method="POST">
 						<input type="hidden" name="format" value="1" />
+						<?php wp_nonce_field($my_id.'_format', '_wpnonce', false); echo "\n"; ?>
 						<div class="submit">
 							<input type="submit" name="yes" value="はい" style="width:80px;" />　
 							<input type="button" name="no" value="いいえ" onclick="click_views_none('user_setsumei')" style="width:80px;" />
@@ -104,6 +116,7 @@ function click_views_none(ids){
 				</div>
 			</div>
 		</div>
+		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 <?php

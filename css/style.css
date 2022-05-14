@@ -1,0 +1,33 @@
+.diagnosis-wrap .red_message, .diagnosis-wrap .form-message{
+	color:red;
+}
+.diagnosis-wrap .plugin-copyright{
+	margin:15px 0 15px 0;font-size:12px;text-align:right;
+}
+.diagnosis-wrap .cation-border{
+	padding:5px;border:1px solid red;
+}
+.diagnosis-form{
+	font-size:100%;
+}
+.diagnosis-form .diagnosis-form-title{
+	font-size:120%;color:#696969;font-weight:bold;
+}
+.diagnosis-form .label{
+	font-weight:bold;
+}
+.diagnosis-form #diagnosis-name{
+	display:inline-block;max-width:250px;
+}
+.diagnosis-form .question{
+	margin:10px 0 10px 0;
+}
+.diagnosis-form .qselect{
+	margin-left:5px;
+}
+.diagnosis-form .qselect .choose{
+	margin-left:15px;
+}
+.diagnosis-form .submit input{
+    padding:5px 10px 5px 10px;
+}

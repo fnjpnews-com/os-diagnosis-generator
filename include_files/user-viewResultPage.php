@@ -6,10 +6,12 @@ if(class_exists('DiagnosisView')){
 	//
 	$class = new DiagnosisView();
 	$user_contents = '';
-
+	//
 	if(isset($error_jscript)){
 		$user_contents .= $error_jscript;
 	}
+	//
+	$theme_script = '';
 
 $user_page_view=<<<_EOD_
 	<div id="diagnosis-plugin">
@@ -20,6 +22,16 @@ _EOD_
 $user_contents .= $user_page_view."\n";
 
 	if(!empty($data)){
+
+			// テーマ
+			$theme = (isset($data['diagnosis_theme'])) ? $data['diagnosis_theme']: '';
+			$theme_script = '';
+			// あればテーマファイル呼び出し
+			if(!empty($theme)){
+				$plugin_url = plugins_url('os-diagnosis-generator');
+				$theme_script = "\t".'<link type="text/css" rel="stylesheet" href="'.$plugin_url.'/theme/'.esc_html($theme).'/style.css"/>'."\n";
+				$theme_script .= "\t".'<script type="text/javascript" src="'.$plugin_url.'/theme/'.esc_html($theme).'/theme.js" ></script>'."\n";
+			}
 
 			// フォームタイトル
 			if(!empty($data['form_title_flag'])){
@@ -42,7 +54,7 @@ $user_contents .= $user_page_view."\n";
 			}
 
 $user_page_view=<<<_EOD_
-			<div id="diagnosis-form">
+			<div id="diagnosis-form" class="diagnosis-result">
 				<div class="diagnosis-form-header">
 					{$form_header}
 				</div>
@@ -66,11 +78,15 @@ $user_contents .= nl2br($result);
 					}
 				}
 			}
+			//
+			if(!empty($data['form_etc'])){
+				$form_etc = $data['form_etc'];
+			}
 
 $user_page_view=<<<_EOD_
 			</div>
 			<div class="diagnosis-form-footer">
-				{$form_footer}
+				{$form_footer}{$form_etc}
 			</div>
 _EOD_
 ;
@@ -81,6 +97,7 @@ $user_contents .= self::osdgLicense(1);
 $user_page_view=<<<_EOD_
 		</div>
 	</div>
+{$theme_script}
 _EOD_
 ;
 $user_contents .= $user_page_view."\n";

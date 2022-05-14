@@ -1,6 +1,6 @@
 <?php
-// バリデーションcalss
-class DiagnosisValidationClass extends DiagnosisClass {
+// バリデーションclass
+class PreDiagnosisValidationClass extends DiagnosisClass {
 
 	public function __construct(){
 
@@ -10,7 +10,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  バリデーションのエラーがあるかどうか
 	*/
-	public function validates($validation=''){
+	public static function validates($validation=''){
 
 		$return_data = 1;
 
@@ -28,7 +28,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  バリデーションメッセージの修正
 	*/
-	public function validates_message($validation='', $array=array()){
+	public static function validates_message($validation='', $array=array()){
 
 		foreach($validation as $vkey => $valid){
 			if(!empty($valid['error'])){
@@ -46,7 +46,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  メッセージをpタグで囲む
 	*/
-	public function pmessage($validate){
+	public static function pmessage($validate){
 
 		$message = '';
 
@@ -60,15 +60,17 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  エラーがあればそれをJavascriptでcssの色を変える
 	*/
-	public function js_error_css($validate){
+	public static function js_error_css($validate){
 
-		$js = "<script>\nj(document).ready( function(){\n";
+		$js = "<script>\njQuery(document).ready( function(){\n";
+		$js .= "\t jQuery('.question div').removeClass('cation-border');\n";
+		$js .= "\t";
 
 		foreach($validate as $key => $val){
-			$js .= "\t j('#".$key."').css('border', '1px solid red');\n";
+			$js .= " jQuery('#".$key."').addClass('cation-border');";
 		}
 
-		$js .= "});\n</script>\n";
+		$js .= "\n});\n</script>\n";
 
 		return $js;
 
@@ -76,7 +78,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  バリデーションルール
 	*/
-	public function validation_rule($post='', $key='', $rule=''){
+	public static function validation_rule($post='', $key='', $rule=''){
 
 		$validation_data = array();
 		$rule_arr = array();
@@ -143,7 +145,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 
 	}
 	// 空かどうか
-	private function validation_empty($post=''){
+	public static function validation_empty($post=''){
 
 		if(empty($post)){ // 空なら問題あり
 			return 1;
@@ -153,7 +155,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 
 	}
 	// 0か空かどうか
-	private function validation_zero_or_empty($post=''){
+	public static function validation_zero_or_empty($post=''){
 
 		if(empty($post)){ // 空なら
 			if(is_numeric($post)){ // 0なら
@@ -167,7 +169,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 
 	}
 	// 数字かどうか
-	private function validation_numeric($post=''){
+	public static function validation_numeric($post=''){
 
 		if(is_numeric($post)){ // 数値なら問題なし
 			return 0;
@@ -177,11 +179,11 @@ class DiagnosisValidationClass extends DiagnosisClass {
 
 	}
 	// 指定した文字数内か
-	private function validation_number($post='', $start='', $end=''){
+	public static function validation_number($post='', $start='', $end=''){
 
 		$start_error = 0;
 		$end_error = 0;
-		$count = mb_strlen($post);
+		$count = mb_strlen($post, "UTF-8");
 		// 開始文字数
 		if(!empty($start)){
 			if($start<$count || $count==$start){
@@ -209,7 +211,7 @@ class DiagnosisValidationClass extends DiagnosisClass {
 	/*
 	*  エラーメッセージ
 	*/
-	public function validation_error_message($key='', $rule='', $str1='', $str2=''){
+	public static function validation_error_message($key='', $rule='', $str1='', $str2=''){
 
 		switch($rule){
 			case 'empty':

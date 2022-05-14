@@ -1,0 +1,54 @@
+/**
+*  default theme
+**/
+.diagnosis-wrap .diagnosis-form{
+	font-family:"ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+	font-size:15px;
+}
+.diagnosis-wrap .red_message p{
+	margin:5px 15px 5px 5px;padding:0;display:inline-block;
+}
+.diagnosis-wrap .diagnosis-form-title{
+	border-bottom:1px solid #778899;color:#778899;font-size:20px;font-weight:bold;
+}
+.diagnosis-wrap .diagnosis-form .label, .diagnosis-wrap .diagnosis-form .cols{
+	margin:0;padding:0;
+}
+.diagnosis-wrap .diagnosis-form .label-diagnosis-name{
+	margin:0;padding:5px 10px 5px 10px;height:45px;max-height:45px;background-color:#808080;border:1px solid #808080;color:white;
+	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
+}
+.diagnosis-wrap .diagnosis-form #diagnosis-name{
+	margin:0;height:45px;max-height:45px;border-top:0;border-left:0;border-right:0;border-bottom:1px solid #808080;background-color:#ffffff;
+}
+.diagnosis-wrap .diagnosis-form .submit input{
+    margin:0;padding:5px 10px 5px 10px;height:45px;max-height:45px;background-color:#708090;border:1px solid #708090;color:white;
+    -webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;cursor:pointer;
+}
+.diagnosis-wrap .diagnosis-form .submit input:hover{
+    background-color:#b0c4de;border:1px solid #b0c4de;
+}
+.diagnosis-wrap .diagnosis-form .question{
+	margin:20px 5px 20px 5px;color:#808080;
+}
+.diagnosis-wrap .diagnosis-form .question .qcontents{
+	font-weight:bold;
+}
+.diagnosis-wrap .diagnosis-form .question .qcontents .question-number{
+	color:#808080;
+}
+.diagnosis-wrap .diagnosis-form .question .qcontents .question-delimiter{
+	display:none;
+}
+.diagnosis-wrap .diagnosis-form .question .qcontents .question-text{
+	margin-left:15px;font-size:17px;color:#778899;
+}
+.diagnosis-wrap .diagnosis-form .question .qselect{
+	margin:15px 0 10px 0;font-weight:bold;
+}
+.diagnosis-wrap .diagnosis-form .question .qselect .choose:hover{
+	border-bottom:1px solid #b0c4de;cursor:pointer;
+}
+.diagnosis-wrap .diagnosis-form .question .qselect .choose:hover input, .diagnosis-wrap .diagnosis-form .question .qselect .choose:hover label{
+	color:#b0c4de;cursor:pointer;
+}

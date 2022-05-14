@@ -8,15 +8,16 @@ if(class_exists('DiagnosisAdmin')){
 <script>
 function view_div(ids, str){
 	if(str==1){
-		j('#'+ids).css('display', 'block');
+		jQuery('#'+ids).css('display', 'block');
 	}
 	else{
-		j('#'+ids).css('display', 'none');
+		jQuery('#'+ids).css('display', 'none');
 	}
 }
 </script>
 
 	<div id="diagnosis-plugin">
+	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>診断フォーム一覧</h2>
 			<div class="diagnosis-contents">
@@ -49,6 +50,7 @@ function view_div(ids, str){
 
 			</div>
 		</div>
+		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 <?php
 }

@@ -30,7 +30,7 @@ function osdgTimezoneGet(){
 }
 // プラグインが有効化されたときに実行する
 function osdgActivationPlugin(){
-	// 過去にに有効化されている場合
+	// 過去に有効化されている場合
 	if(get_option(OSDG_PLUGIN_TABLE_VERSION_NAME)){
 
 	}else{ // 初めて有効化した場合
@@ -46,8 +46,14 @@ function osdgActivationPlugin(){
 	if(!DiagnosisSqlClass::show_table(OSDG_PLUGIN_QUESTION_TABLE_NAME)){
 		DiagnosisSqlClass::newQuestionDataTable();
 	}
+	if(!DiagnosisSqlClass::show_table(OSDG_PLUGIN_FORM_OPTIONS)){
+		DiagnosisSqlClass::newFormOptionsTable();
+	}
 }
-if(function_exists('register_activation_hook')){
-	register_activation_hook(OSDG_PLUGIN_FILE, 'osdgActivationPlugin');
+// 他バージョンからの読み込みでなければ
+if(!defined('OSDGPRO_PLUGIN_DIR')){
+	if(function_exists('register_activation_hook')){
+		register_activation_hook(OSDG_PLUGIN_FILE, 'osdgActivationPlugin');
+	}
 }
 ?>
