@@ -2,7 +2,7 @@
 if(class_exists('DiagnosisAdmin')){
 ?>
 	<div id="diagnosis-plugin">
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>はじめに</h2>
 			<div class="diagnosis-contents">
@@ -30,6 +30,9 @@ if(class_exists('DiagnosisAdmin')){
 			</div>
 			<h2>更新履歴</h2>
 			<div class="diagnosis-contents">
+				<p>2022-05-14  軽微な修正。</p>
+				<p>2022-05-13  別プラグインが阻害することがあるのでinclude_onceをincludeに変更。</p>
+				<p>2018-07-04  軽微な修正。</p>
 				<p>2018-04-11  一部環境で発生するJS不具合の修正。</p>
 				<p>2017-11-12  フォーム編集ページの修正。</p>
 				<p>2017-11-12  nonce周りの修正。</p>
@@ -59,7 +62,7 @@ if(class_exists('DiagnosisAdmin')){
 				<p>2014.08.08 リリース</p>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 <?php

@@ -19,7 +19,7 @@ if(class_exists('DiagnosisAdmin')){
 
 	<div id="diagnosis-plugin">
 	<div id="dialog" title="説明"></div>
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 <?php
 		if(isset($write_id)):
@@ -274,7 +274,7 @@ if(class_exists('DiagnosisAdmin')){
 <?php
 							if(!empty($pro_flag)){
 								if(file_exists(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/table1.php')){
-									include_once(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/table1.php');
+									include(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/table1.php');
 								}
 							}
 ?>
@@ -450,7 +450,17 @@ if(class_exists('DiagnosisAdmin')){
 						</div>
 						<div id="push_message<?php echo $i; ?>"></div>
 						<div class="clearfix">
+						<?php
+						if ($i < 10) {
+						?>
 							<textarea name="text<?php echo $i; ?>" id="text<?php echo $i; ?>" placeholder="診断結果Text<?php echo $i; ?>" class="left"><?php self::post_set($text_set); ?></textarea>
+						<?php
+						} else {
+						?>
+							<textarea name="textten" id="textten" placeholder="診断結果Text<?php echo $i; ?>" class="left"><?php self::post_set($text_set); ?></textarea>
+						<?php
+						}
+						?>
 							<div class="condition condition-disp left" style="display:none;">
 								<div class="chd">表示条件</div>
 								<div id="condition-line<?php echo $i; ?>">
@@ -558,7 +568,7 @@ if(class_exists('DiagnosisAdmin')){
 			?>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 <script>
 // 読み込み時の動作
@@ -616,7 +626,7 @@ jQuery(document).ready(function(){
 <?php
 	if(!empty($pro_flag)){
 		if(file_exists(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js1.php')){
-			include_once(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js1.php');
+			include(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js1.php');
 		}
 	}
 ?>
@@ -849,7 +859,7 @@ function view_message(ids, str){
 <?php
 	if(!empty($pro_flag)){
 		if(file_exists(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js2.php')){
-			include_once(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js2.php');
+			include(OSDGPRO_PLUGIN_INCLUDE_FILES.'/admin-postNew/js2.php');
 		}
 	}
 ?>

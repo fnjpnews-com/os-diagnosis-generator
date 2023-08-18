@@ -91,12 +91,12 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		switch($mode){
 			// ライセンス、PRO版について
 			case 'license':
-				include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-licensePage.php");
+				include(OSDG_PLUGIN_INCLUDE_FILES."/admin-licensePage.php");
 				break;
 			// はじめに
 			default:
 				self::makeTableCheck();
-				include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-adminPage.php");
+				include(OSDG_PLUGIN_INCLUDE_FILES."/admin-adminPage.php");
 		}
 
 	}
@@ -104,7 +104,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 	public static function agreementPage(){
 
 		self::makeTableCheck();
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-agreementPage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-agreementPage.php");
 
 	}
 	// Page 基本設定
@@ -116,7 +116,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		$user = wp_get_current_user(); // ログインユーザデータ
 		$my_id = (isset($user->ID)) ? $user->ID: 0;
 		include OSDG_PLUGIN_DIR."class/timezoneList.php";
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-optionPage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-optionPage.php");
 
 	}
 	// Page　新規作成
@@ -169,7 +169,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		}
 
 		$message .= DiagnosisMessageClass::updateMessage();
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-postNewPage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-postNewPage.php");
 
 	}
 	// Page 編集
@@ -228,7 +228,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		}
 
 		$message .= DiagnosisMessageClass::updateMessage();
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-postWritePage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-postWritePage.php");
 		self::action_cache_delete();
 
 	}
@@ -262,7 +262,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		$message = '';
 		$data = DiagnosisSqlClass::get_list_diagnosis();
 		$message .= DiagnosisMessageClass::updateMessage();
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-postListPage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-postListPage.php");
 
 	}
 	// Page テーマ設定
@@ -277,7 +277,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		$my_id = (isset($user->ID)) ? $user->ID: 0;
 		$dir_list = self::scandir(OSDG_PLUGIN_DIR.'theme');
 		//print_r($dir_list);
-		include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-themeOptionPage.php");
+		include(OSDG_PLUGIN_INCLUDE_FILES."/admin-themeOptionPage.php");
 
 	}
 	/*
@@ -366,7 +366,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 		wp_enqueue_script('j', plugins_url($now_plugin).'/js/j.js', array(), '1.0');
 		// css
 		wp_enqueue_style('jquery-ui', plugins_url($now_plugin).'/js/jquery-ui/jquery-ui.css', array(), '1.0');
-		wp_enqueue_style('style-admin', plugins_url($now_plugin).'/css/style-admin.css', array(), '1.1');
+		wp_enqueue_style('style-admin', plugins_url($now_plugin).'/css/style-admin.css', array(), '1.0');
 
 	}
 	// 基本設定、POSTの処理
@@ -452,7 +452,7 @@ class PreDiagnosisAdmin extends DiagnosisClass {
 						$this_validate = DiagnosisValidationClass::validation_rule($p, $key, array(array('number', 0, 20000)));
 						break;
 					// Text系、3000文字
-					case 'text1': case 'text2': case 'text3': case 'text4': case 'text5': case 'text6': case 'text7': case 'text8': case 'text9': case 'text10': case 'image1':
+					case 'text1': case 'text2': case 'text3': case 'text4': case 'text5': case 'text6': case 'text7': case 'text8': case 'text9': case 'text10': case 'image1': case 'textten':
 						$this_validate = DiagnosisValidationClass::validation_rule($p, $key, array(array('number', 0, 3000)));
 						break;
 					// デフォルト、空はエラー、151文字以上はエラー

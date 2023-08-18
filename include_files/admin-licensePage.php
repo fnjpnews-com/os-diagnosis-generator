@@ -2,7 +2,7 @@
 if(class_exists('DiagnosisAdmin')){
 ?>
 	<div id="diagnosis-plugin">
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<a name="license" id="license"></a>
 			<h2>ライセンスについて</h2>
@@ -25,7 +25,7 @@ if(class_exists('DiagnosisAdmin')){
 				<p>詳しくは、<a href="http://lp.olivesystem.jp/cart/plugindgpro" target="_blank">こちら</a>をご覧ください。</p>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 <?php

@@ -34,7 +34,7 @@ function click_views_none(ids){
 </script>
 
 	<div id="diagnosis-plugin">
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>オプション</h2>
 			<div class="diagnosis-contents">
@@ -116,7 +116,7 @@ function click_views_none(ids){
 				</div>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 <?php

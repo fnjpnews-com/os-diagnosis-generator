@@ -166,6 +166,7 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 		if(!empty($get_data) && isset($get_data[0]->question_id)){
 			foreach($get_data as $gdata){
 				foreach($gdata as $k => $g){
+					$g = str_replace(array('\&#039;', '\&quot;'), array("'", '"'), $g);
 					if(stristr($k, "question_")){
 						$key = str_replace("question_", "", $k);
 						$data[$key] = $g;
@@ -402,7 +403,7 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 				$set_data .= "`".self::sql_escape($key)."`= %d ,";
 				$params[] = trim($p);
 			}
-			elseif($key=='text1' || $key=='text2' || $key=='text3' || $key=='text4' || $key=='text5' || $key=='text6' || $key=='text7' || $key=='text8' || $key=='text9' || $key=='text10' || $key=='image1'){
+			elseif($key=='text1' || $key=='text2' || $key=='text3' || $key=='text4' || $key=='text5' || $key=='text6' || $key=='text7' || $key=='text8' || $key=='text9' || $key=='text10' || $key=='textten' || $key=='image1'){
 				$post_data = trim($p);
 				// 存在チェック
 				if($text_check[$key]==1){
@@ -423,7 +424,11 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 					}
 					// 空じゃなければ挿入する
 					if(!empty($post_data)){
-						$d_key = self::data_key($text_i, $key);
+						if ($key=='textten') {
+							$d_key = 10;
+						} else {
+							$d_key = self::data_key($text_i, $key);
+						}
 						// 設問条件
 						if(!empty($condition_line) && isset($condition_line[$d_key])){
 							$set_detail_params[$d_key][] = $condition_line[$d_key];
@@ -486,7 +491,7 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 	public static function diagnosis_check_wr($post, $condition_line){
 
 		$return_array = array(
-			'text1'=>0, 'text2'=>0, 'text3'=>0, 'text4'=>0, 'text5'=>0, 'text6'=>0, 'text7'=>0, 'text8'=>0, 'text9'=>0, 'text10'=>0, 'image1'=>0,
+			'text1'=>0, 'text2'=>0, 'text3'=>0, 'text4'=>0, 'text5'=>0, 'text6'=>0, 'text7'=>0, 'text8'=>0, 'text9'=>0, 'text10'=>0, 'textten'=>0, 'image1'=>0,
 		);
 		// SQL
 		global $wpdb;
@@ -502,6 +507,9 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 					$m_id = $id - 1000;
 					$cols = 'image'.$m_id;
 					$delete_cols = 'image_delete'.$id;
+				} elseif ($id == 10) {
+					$cols = 'textten';
+					$delete_cols = 'text_delete10';
 				}else{
 					$cols = 'text'.$id;
 					$delete_cols = 'text_delete'.$id;
@@ -701,7 +709,7 @@ class PreDiagnosisSqlClass extends DiagnosisClass {
 		global $osdg_sqlfile_check;
 		// 既に読み込まれていないければファイル読み込み
 		if($osdg_sqlfile_check!='1'){
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			require(ABSPATH . 'wp-admin/includes/upgrade.php');
 			$GLOBALS['osdg_sqlfile_check'] = 1; // 読み込みチェック
 		}
 

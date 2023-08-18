@@ -3,7 +3,7 @@ if(class_exists('DiagnosisAdmin')){
 ?>
 
 	<div id="diagnosis-plugin">
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>利用規約</h2>
 			<div class="diagnosis-contents">
@@ -33,7 +33,7 @@ if(class_exists('DiagnosisAdmin')){
 				<p>平成二十八年五月六日　改定</p>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 <?php

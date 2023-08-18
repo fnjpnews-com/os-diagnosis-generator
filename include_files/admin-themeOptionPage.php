@@ -3,7 +3,7 @@ if(class_exists('DiagnosisAdmin')){
 ?>
 
 	<div id="diagnosis-plugin">
-	<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
+	<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-head.php"); ?>
 		<div class="diagnosis-wrap">
 			<h2>診断フォームテーマ作成、編集</h2>
 <?php
@@ -90,7 +90,7 @@ if(!DiagnosisSqlClass::show_table(OSDG_PLUGIN_FORM_OPTIONS)){
 				</div>
 			</div>
 		</div>
-		<?php include_once(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
+		<?php include(OSDG_PLUGIN_INCLUDE_FILES."/admin-foot.php"); ?>
 	</div>
 
 	<script>

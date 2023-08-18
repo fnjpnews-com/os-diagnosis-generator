@@ -120,7 +120,14 @@ class PreDiagnosisView extends DiagnosisClass {
 										$jump_url = trim($check_data['result_page_url']);
 									}
 								}else{
-									$jump_url = '';
+									if (!function_exists('is_plugin_active')) {
+										include( ABSPATH . 'wp-admin/includes/plugin.php' );
+									}
+									if (is_plugin_active('osdg-shortcode-custom')) {
+										$jump_url = '?osdg_custom=1&form_id='.$data_id;
+									} else {
+										$jump_url = '';
+									}
 								}
 								//
 								$url = self::url_plus($url_array, $jump_url);
@@ -144,7 +151,7 @@ class PreDiagnosisView extends DiagnosisClass {
 			}
 
 			$message .= DiagnosisMessageClass::updateMessage('1');
-			include_once(OSDG_PLUGIN_INCLUDE_FILES."/user-viewFormPage.php");
+			include(OSDG_PLUGIN_INCLUDE_FILES."/user-viewFormPage.php");
 
 		}
 
@@ -209,7 +216,7 @@ class PreDiagnosisView extends DiagnosisClass {
 			$data = DiagnosisSqlClass::get_diagnosis($data_id);
 			$result = DiagnosisResultClass::result_data_arrangement($get, $data);
 			$message .= DiagnosisMessageClass::updateMessage('1');
-			include_once(OSDG_PLUGIN_INCLUDE_FILES."/user-viewResultPage.php");
+			include(OSDG_PLUGIN_INCLUDE_FILES."/user-viewResultPage.php");
 
 		}
 
