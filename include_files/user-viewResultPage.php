@@ -81,6 +81,8 @@ $user_contents .= nl2br($result);
 			//
 			if(!empty($data['form_etc'])){
 				$form_etc = $data['form_etc'];
+			} else {
+				$form_etc = '';
 			}
 
 $user_page_view=<<<_EOD_
