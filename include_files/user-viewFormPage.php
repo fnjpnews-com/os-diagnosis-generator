@@ -237,6 +237,8 @@ $user_contents .= $user_page_view."\n";
 			//
 			if(!empty($data['form_etc'])){
 				$form_etc = $data['form_etc'];
+			} else {
+				$form_etc = '';
 			}
 
 			if(!empty($nonce_no) && $nonce_no=='no'){
@@ -266,30 +268,29 @@ $user_contents .= $user_page_view."\n";
 	if(!empty($nonce_cache_sol)){
 		ob_start();
 ?>
-	<form action="<?php echo site_url(); ?>" id="nonce-update" method="POST">
-		<input type="hidden" name="mode" value="osdg-again-nonce" />
-	</form>
-	<script>
-	// nonceキャッシュ対策
-	jQuery(document).ready(function(){
-		var $form = jQuery('#nonce-update');
-		//
-		jQuery.ajax({
-			url: $form.attr('action'),
-			type: $form.attr('method'),
-			data: $form.serialize(),
-			// 通信成功時の処理
-			success: function(result, textStatus, xhr) {
-				ary = result.split(',');
-				// 値を変更
-				jQuery('[name="<?php echo OSDG_NONCE_NAME; ?>"]').val(ary[0]);
-			},
-			// 通信失敗時の処理
-			error: function(xhr, textStatus, error) {
-			}
-		});
-	});
-	</script>
+<form action="<?php echo site_url(); ?>" id="nonce-update" method="POST">
+    <input type="hidden" name="mode" value="osdg-again-nonce" />
+</form>
+<script>
+// nonceキャッシュ対策
+jQuery(document).ready(function() {
+    var $form = jQuery('#nonce-update');
+    //
+    jQuery.ajax({
+        url: $form.attr('action'),
+        type: $form.attr('method'),
+        data: $form.serialize(),
+        // 通信成功時の処理
+        success: function(result, textStatus, xhr) {
+            ary = result.split(',');
+            // 値を変更
+            jQuery('[name="<?php echo OSDG_NONCE_NAME; ?>"]').val(ary[0]);
+        },
+        // 通信失敗時の処理
+        error: function(xhr, textStatus, error) {}
+    });
+});
+</script>
 <?php
 		$theme_script .= ob_get_contents();
 		ob_end_clean();
